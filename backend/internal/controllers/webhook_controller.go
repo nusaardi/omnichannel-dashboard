@@ -135,6 +135,33 @@ func (c *WebhookController) HandleInstagram(w http.ResponseWriter, r *http.Reque
 	w.Write([]byte("EVENT_RECEIVED"))
 }
 
+// HandleWhatsAppInternal handles forwarded WhatsApp webhooks from n8n (no signature check)
+func (c *WebhookController) HandleWhatsAppInternal(w http.ResponseWriter, r *http.Request) {
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		log.Printf("Failed to read internal webhook body: %v", err)
+		http.Error(w, "Failed to read body", http.StatusBadRequest)
+		return
+	}
+
+	var payload types.WebhookPayload
+	if err := json.Unmarshal(body, &payload); err != nil {
+		log.Printf("Failed to parse internal webhook payload: %v", err)
+		http.Error(w, "Invalid payload", http.StatusBadRequest)
+		return
+	}
+
+	// Process asynchronously
+	go func() {
+		if err := c.messagingSvc.ProcessIncomingWhatsApp(r.Context(), &payload); err != nil {
+			log.Printf("Failed to process WhatsApp message from n8n: %v", err)
+		}
+	}()
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("OK"))
+}
+
 // verifySignature verifies the Meta webhook signature
 func (c *WebhookController) verifySignature(body []byte, signature string) bool {
 	if signature == "" {

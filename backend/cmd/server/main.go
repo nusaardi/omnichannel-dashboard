@@ -52,7 +52,7 @@ func main() {
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.RequestID)
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"https://omni.otomasi.click", "http://localhost:3000"},
+		AllowedOrigins:   []string{"https://omni.otomasi.click", "https://legendary-froyo-74445e.netlify.app", "http://localhost:3000"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type"},
 		AllowCredentials: true,
@@ -89,6 +89,9 @@ func main() {
 		r.Get("/instagram", webhookCtrl.VerifyInstagram)
 		r.Post("/instagram", webhookCtrl.HandleInstagram)
 	})
+
+	// Internal webhook routes (from n8n, no signature check)
+	r.Post("/internal/whatsapp", webhookCtrl.HandleWhatsAppInternal)
 
 	// Start server
 	port := os.Getenv("PORT")
