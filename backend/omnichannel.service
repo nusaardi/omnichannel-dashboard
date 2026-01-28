@@ -1,0 +1,15 @@
+[Unit]
+Description=Omnichannel Dashboard Backend
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/omnichannel
+ExecStart=/opt/omnichannel/server
+Restart=always
+RestartSec=5
+Environment=PORT=8080
+
+[Install]
+WantedBy=multi-user.target

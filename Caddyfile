@@ -1,0 +1,28 @@
+# Caddyfile untuk Backend API di VPS
+# Domain: omni.otomasi.click
+
+omni.otomasi.click {
+    # Backend API
+    handle /api/* {
+        reverse_proxy localhost:8080
+    }
+
+    # Webhooks - harus accessible dari Meta
+    handle /webhooks/* {
+        reverse_proxy localhost:8080
+    }
+
+    # Health check
+    handle /health {
+        reverse_proxy localhost:8080
+    }
+
+    # CORS headers untuk Netlify frontend
+    header {
+        Access-Control-Allow-Origin "https://*.netlify.app"
+        Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+        Access-Control-Allow-Headers "Content-Type, Authorization"
+    }
+
+    # SSL auto-configured by Caddy
+}
